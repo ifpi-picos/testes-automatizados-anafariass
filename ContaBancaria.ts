@@ -1,41 +1,56 @@
 export default class ContaBancaria {
   private numeroConta : number;
   private saldo = 0;
-  private agencia: 1 ;
-  private extrato: string[];
+  private agencia: number ;
+  private extrato: string[] = [];
 
-  public constructor() {
-    this.numeroConta = 0
-    this.agencia = 1
-    this.extrato = []
+  public constructor(numeroConta: number, agencia: number) {
+    this.numeroConta = numeroConta;
+    this.agencia = agencia;
   }
+
 
   public depositar(valor: number) {
-    if (valor > 0) {
-      this.saldo += valor;
+      if (valor > 0) {
+        this.saldo += valor;
+        this.registrarOperacao(`Depósito de R$${valor}`);
+      }
+  }
+
+  public sacar(valor: number): void {
+    if (valor > 0 && valor <= this.saldo) {
+      this.saldo -= valor;
+      this.extrato.push(`Saque de R$${valor}`);
+    }else {
+      throw new Error("Saldo insuficiente");
     }
   }
 
-  public sacar(valor:number){
-    if (this.saldo >= valor){
-        this.saldo -= valor;
-        return valor;
-
+  public transferir(valor: number, contaDestino: ContaBancaria): void {
+    if (valor > 0 && this.saldo >= valor) {
+      this.sacar(valor);
+      contaDestino.depositar(valor);
+      this.registrarOperacao(`Transferência de R$${valor} para conta ${contaDestino.NumeroConta()}`);
+    } else {
+      throw new Error("Saldo insuficiente ou valor de transferência inválido.");
     }
-
-    //return throw new Error("Saldo insuficiente")
-
   }
-  public numberConta(valor:number){
+
+  public NumeroConta(){
     return this.numeroConta 
   }
-
+  
+  private registrarOperacao(descricao: string): void {
+    const data = new Date().toLocaleString();
+    this.extrato.push(`${data} - ${descricao}`);
+  }
   public consultarSaldo() {
     return this.saldo;
   }
 
-
-
+  public exibirExtrato(){
+    return this.extrato
+  }
 
 }
 
